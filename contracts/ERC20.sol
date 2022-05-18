@@ -48,8 +48,8 @@ contract MyERC20 is IERC20 {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
-        console.log("111");
     }
+
     // getters
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
@@ -75,6 +75,7 @@ contract MyERC20 is IERC20 {
     function transferFrom(address _from, address _to, uint256 _value) public virtual override returns (bool) {
         require(_allowances[_from][msg.sender] >= _value, "You try to transfer more than allowed");
         require(_balances[_from] >= _value, "Not enough tokens");
+        require(_to != address(0), "Enter correct address");
 
         _allowances[_from][msg.sender] -= _value;
         _balances[_from] -= _value;
@@ -86,6 +87,8 @@ contract MyERC20 is IERC20 {
 
     // approves someone to use your tokens
     function approve(address _spender, uint256 _value) public virtual override returns (bool) {
+        require(_spender != address(0), "Enter correct address");
+
         _allowances[msg.sender][_spender] = _value;
         
         emit Approval(msg.sender, _spender, _value);

@@ -13,7 +13,7 @@ describe("ERC20 Contract", function () {
   [owner, addr1, addr2] = await ethers.getSigners();
 
   const ERC20 = await ethers.getContractFactory("MyERC20", owner);
-  contract = await ERC20.deploy();
+  contract = await ERC20.deploy("DVCoin", "DVC", 18);
 
   await contract.deployed();
 
@@ -34,18 +34,6 @@ describe("ERC20 Contract", function () {
     it("Should return balance of account", async function() {
       expect(await contract.balanceOf(addr1.address)).to.equal(100000000);
       expect(await contract.balanceOf(owner.address)).to.equal(0);
-    });
-
-    it("Should return name of token", async function() {
-      expect(await contract.name()).to.equal("DVToken");
-    });
-
-    it("Should return symbol of token", async function() {
-      expect(await contract.symbol()).to.equal("DVT");
-    });
-
-    it("Should return number of decimals of token", async function() {
-      expect(await contract.decimals()).to.equal(18);
     });
 
     it("Should return information about approves", async function() {
@@ -92,6 +80,15 @@ describe("ERC20 Contract", function () {
     it("Should revert transaction if you try to send more tokens than allowed", async function(){
       await contract.connect(addr1).approve(owner.address, 10);
       await expect(contract.transferFrom(addr1.address, addr2.address, 100)).to.be.revertedWith("You try to transfer more than allowed");
+    });
+
+    it("Should revert transaction if you try to send tokens to 0x0 address", async function(){
+      await contract.connect(addr1).approve(owner.address, 10);
+      await expect(contract.transferFrom(addr1.address, "0x0000000000000000000000000000000000000000", 8)).to.be.revertedWith("Enter correct address");
+    });
+
+    it("Should revert approving, if you try to approve spending for 0x0 address", async function(){
+      await expect(contract.connect(addr1).approve("0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("Enter correct address");
     });
 
     it("Should convert ETH to DVT, when you send ETH to smart contract", async function() {
