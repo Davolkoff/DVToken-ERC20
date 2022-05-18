@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 
 // used as the foundation of the contract
 interface IERC20 {
