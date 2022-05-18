@@ -12,7 +12,7 @@ describe("ERC20 Contract", function () {
   beforeEach(async function() {
   [owner, addr1, addr2] = await ethers.getSigners();
 
-  const ERC20 = await ethers.getContractFactory("ERC20", owner);
+  const ERC20 = await ethers.getContractFactory("MyERC20", owner);
   contract = await ERC20.deploy();
 
   await contract.deployed();

@@ -1,13 +1,11 @@
 import { run, ethers } from "hardhat";
-import { threadId } from "worker_threads";
+import { ERC20__factory } from "../typechain";
 
 async function main() {
   await run("compile");
 
-  const [signer] = await ethers.getSigners();
-
-  const ERC20 = await ethers.getContractFactory("ERC20", signer);
-  const contract = await ERC20.deploy();
+  const ERC20 = await ethers.getContractFactory("MyERC20");
+  const contract = await ERC20.deploy("DVCoin", "DVC", 18);
 
   await contract.deployed();
 

@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import * as ERC20Aritfact from "../artifacts/contracts/ERC20.sol/ERC20.json";
+import * as ERC20Aritfact from "../artifacts/contracts/ERC20.sol/MyERC20.json";
 
 task("allowance", "Returns the rest of the tokens that can be spent by user from a certain account")
 .addParam("address", "Address of contract")

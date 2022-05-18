@@ -32,32 +32,27 @@ interface IERC20 {
     );
 }
 
-contract ERC20 is IERC20 {
+contract MyERC20 is IERC20 {
 
     uint256 public _totalSupply; // total number of tokens
 
     mapping(address => uint256) private _balances; // the number of tokens each user has
     mapping(address => mapping(address => uint256)) private _allowances; // information who entrusted their money to whom
 
-    string public _name = "DVToken"; // name of token
-    string public _symbol = "DVT"; // symbol of token
-    uint8 public _decimals = 18; // number of decimals
+    string public name; // name of token
+    string public symbol; // symbol of token
+    uint8 public decimals; // number of decimals
 
+
+    constructor (string memory _name, string memory _symbol, uint8 _decimals) {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+        console.log("111");
+    }
     // getters
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
-    }
-
-    function name() public view returns (string memory) {
-        return _name;
-    }
-
-    function symbol() public view returns (string memory) {
-        return _symbol;
-    }
-
-    function decimals() public view returns (uint8) {
-        return _decimals;
     }
 
     function balanceOf(address _owner) public view virtual override returns (uint256) {
