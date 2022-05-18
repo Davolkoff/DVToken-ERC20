@@ -12,7 +12,7 @@ describe("ERC20 Contract", function () {
   beforeEach(async function() {
   [owner, addr1, addr2] = await ethers.getSigners();
 
-  const ERC20 = await ethers.getContractFactory("MyERC20", owner);
+  const ERC20 = await ethers.getContractFactory("MyERC20");
   contract = await ERC20.deploy("DVCoin", "DVC", 18);
 
   await contract.deployed();
@@ -121,7 +121,4 @@ describe("ERC20 Contract", function () {
       await expect(contract.withdraw(addr2.address, 1)).to.be.revertedWith("Only owner of account can withdraw ETH");
     });
   });
-
-  
-
 });
