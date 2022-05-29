@@ -3,31 +3,26 @@ import { expect } from "chai";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
-describe("ERC20 Contract", function () {
+describe("ERC20 functions", function () {
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
   let contract: Contract;
 
-  beforeEach(async function() {
-  [owner, addr1, addr2] = await ethers.getSigners();
+  describe("Deploying", function () {
+    it("Should deploy ERC20 contract and mint them on your balance", async function () {
+      [owner, addr1, addr2] = await ethers.getSigners();
+      const token20 = await ethers.getContractFactory("MyERC20");
+      contract = await token20.deploy("DVCoin", "DVC", 18);
 
-  const ERC20 = await ethers.getContractFactory("MyERC20");
-  contract = await ERC20.deploy("DVCoin", "DVC", 18);
-
-  await contract.deployed();
-
-  const tx = {
-    to: contract.address,
-    value: 10000
-  }
-
-  const txSend = await addr1.sendTransaction(tx);
-  await txSend.wait();
+      await contract.deployed();
+    });
   });
 
   describe("Returning information", function(){
+
     it("Should return total supply of token", async function() {
+      await contract.mint(addr1.address, "100000000");
       expect(await contract.totalSupply()).to.equal(100000000);
     });
 
@@ -44,13 +39,7 @@ describe("ERC20 Contract", function () {
 
   describe("Transfers", function(){
     beforeEach(async function(){ 
-      const tx = {
-        to: contract.address,
-        value: 10000
-      }
-
-      const txSend = await owner.sendTransaction(tx);
-      await txSend.wait();
+      await contract.mint(owner.address, "100000000")
     });
 
     it("Should transfer tokens between accounts", async function() {
@@ -91,34 +80,26 @@ describe("ERC20 Contract", function () {
       await expect(contract.connect(addr1).approve("0x0000000000000000000000000000000000000000", 10)).to.be.revertedWith("Enter correct address");
     });
 
-    it("Should convert ETH to DVT, when you send ETH to smart contract", async function() {
-      expect(await contract.balanceOf(owner.address)).to.equal(100000000);
+    it("Should mint tokens", async function() {
+      expect(await contract.balanceOf(owner.address)).to.equal(899999000);
     });
 
-    it("Should convert DVT to ETH, when you withdraw DVT from smart contract", async function() {
-      const tx = {
-        to: contract.address,
-        value: await ethers.utils.parseEther("0.1")
-      }
+    it("Should burn tokens", async function() {
+      await contract.burn(addr1.address, "90000000")
+      expect(await contract.balanceOf(addr1.address)).to.equal(10000000);
 
-      const txSend = await addr1.sendTransaction(tx);
-      await txSend.wait();
-
-      let startBalance = await ethers.utils.formatEther(await ethers.provider.getBalance(addr1.address));
-      await contract.connect(addr1).withdraw(addr1.address, await ethers.utils.parseEther("1000"));
-      let endBalance = await ethers.utils.formatEther(await ethers.provider.getBalance(addr1.address));
-      
-      let difference = Number(endBalance) - Number(startBalance)
-      expect(await contract.balanceOf(addr1.address)).to.equal(100000000);
-      expect(difference.toFixed(1)).to.equal('0.1');
     });
 
-    it("Should revert withdrawing if you have not got enough tokens", async function() {
-      await expect(contract.withdraw(owner.address, 10000000000000)).to.be.revertedWith("Not enough tokens");
+    it("Should revert burning if account hasn't got enough tokens", async function() {
+      await expect(contract.burn(addr1.address, 10000000000000)).to.be.revertedWith("Not enough tokens");
     });
 
-    it("Should revert withdrawing if you are not an owner of account", async function() {
-      await expect(contract.withdraw(addr2.address, 1)).to.be.revertedWith("Only owner of account can withdraw ETH");
+    it("Should revert minting if you are not an owner", async function() {
+      await expect(contract.connect(addr2).mint(addr2.address, 10)).to.be.revertedWith("Not an owner");
+    });
+
+    it("Should revert burning if you are not an owner", async function() {
+      await expect(contract.connect(addr2).burn(addr2.address, 10)).to.be.revertedWith("Not an owner");
     });
   });
 });
